@@ -1,10 +1,11 @@
+import json
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
+from rest_framework import status
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from .models import Articulo
 from django.forms.models import model_to_dict
-import json
+from .models import Articulo
 
 
 class ArticuloCreateView(APIView):
@@ -16,6 +17,23 @@ class ArticuloCreateView(APIView):
         """Crea un nuevo artículo en la base de datos."""
 
         data = json.loads(request.body)
+
+        # Validar los datos del artículo
+        if (not data['referencia']
+            or not data['nombre']
+            or not data['descripcion']
+            or not data['precio_sin_impuestos']
+                or not data['impuesto_aplicable']):
+            return JsonResponse({'error': 'Todos los campos son obligatorios'},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        if (data['precio_sin_impuestos'] <= 0
+                or data['impuesto_aplicable'] <= 0):
+            return JsonResponse(
+                {'error': 'El precio y el impuesto deben ser mayores que 0'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         articulo = Articulo.objects.create(
             referencia=data['referencia'],
             nombre=data['nombre'],
@@ -23,7 +41,8 @@ class ArticuloCreateView(APIView):
             precio_sin_impuestos=data['precio_sin_impuestos'],
             impuesto_aplicable=data['impuesto_aplicable']
         )
-        return JsonResponse(model_to_dict(articulo), status=201)
+        return JsonResponse(model_to_dict(articulo),
+                            status=status.HTTP_201_CREATED)
 
 
 class ArticuloDetailView(APIView):
@@ -33,13 +52,13 @@ class ArticuloDetailView(APIView):
 
     def get(self, request, id) -> JsonResponse:
         """Obtiene el detalle de un artículo."""
-    
+
         articulo = get_object_or_404(Articulo, id=id)
         return JsonResponse(model_to_dict(articulo))
 
     def put(self, request, id) -> JsonResponse:
         """Actualiza los datos de un artículo."""
-    
+
         data = json.loads(request.body)
         articulo = get_object_or_404(Articulo, id=id)
         articulo.referencia = data['referencia']
@@ -48,7 +67,7 @@ class ArticuloDetailView(APIView):
         articulo.precio_sin_impuestos = data['precio_sin_impuestos']
         articulo.impuesto_aplicable = data['impuesto_aplicable']
         articulo.save()
-        return JsonResponse(model_to_dict(articulo), status=200)
+        return JsonResponse(model_to_dict(articulo), status=status.HTTP_200_OK)
 
 
 class ArticuloListView(APIView):
