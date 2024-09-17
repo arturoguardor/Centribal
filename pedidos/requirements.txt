@@ -1,0 +1,7 @@
+Django>=3.2,<4.0
+mysqlclient
+requests
+drf-yasg
+djangorestframework
+djangorestframework-simplejwt
+django-environ
