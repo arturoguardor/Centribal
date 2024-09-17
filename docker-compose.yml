@@ -1,0 +1,75 @@
+services:
+  db_articulos:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: articulos_db
+      MYSQL_USER: articulos_user
+      MYSQL_PASSWORD: articulos_password
+    volumes:
+      - db_articulos_data:/var/lib/mysql
+    networks:
+      - backend
+    ports:
+      - "3306:3306"
+
+  db_pedidos:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: pedidos_db
+      MYSQL_USER: pedidos_user
+      MYSQL_PASSWORD: pedidos_password
+    volumes:
+      - db_pedidos_data:/var/lib/mysql
+    networks:
+      - backend
+    ports:
+      - "3307:3306"
+
+  articulos-service:
+    build: ./articulos
+    environment:
+      ARTICULOS_SUPERUSER_USERNAME: ${ARTICULOS_SUPERUSER_USERNAME}
+      ARTICULOS_SUPERUSER_EMAIL: ${ARTICULOS_SUPERUSER_EMAIL}
+      ARTICULOS_SUPERUSER_PASSWORD: ${ARTICULOS_SUPERUSER_PASSWORD}
+    command: >
+         sh -c "python manage.py migrate &&
+                echo \"from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('${ARTICULOS_SUPERUSER_USERNAME}', '${ARTICULOS_SUPERUSER_EMAIL}', '${ARTICULOS_SUPERUSER_PASSWORD}') if not User.objects.filter(username='${ARTICULOS_SUPERUSER_USERNAME}').exists() else print('Superuser already exists')\" |
+                python manage.py shell &&
+                python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./articulos:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db_articulos
+    networks:
+      - backend
+
+  pedidos-service:
+    build: ./pedidos
+    environment:
+      PEDIDOS_SUPERUSER_USERNAME: ${PEDIDOS_SUPERUSER_USERNAME}
+      PEDIDOS_SUPERUSER_EMAIL: ${PEDIDOS_SUPERUSER_EMAIL}
+      PEDIDOS_SUPERUSER_PASSWORD: ${PEDIDOS_SUPERUSER_PASSWORD}
+    command: >
+         sh -c "python manage.py migrate &&
+                echo \"from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('${PEDIDOS_SUPERUSER_USERNAME}', '${PEDIDOS_SUPERUSER_EMAIL}', '${PEDIDOS_SUPERUSER_PASSWORD}') if not User.objects.filter(username='${PEDIDOS_SUPERUSER_USERNAME}').exists() else print('Superuser already exists')\" |
+                python manage.py shell &&
+                python manage.py runserver 0.0.0.0:8001"
+    volumes:
+      - ./pedidos:/code
+    ports:
+      - "8001:8001"
+    depends_on:
+      - db_pedidos
+    networks:
+      - backend
+
+networks:
+  backend:
+
+volumes:
+  db_articulos_data:
+  db_pedidos_data:
