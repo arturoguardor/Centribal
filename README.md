@@ -120,12 +120,12 @@ Para ejecutar las pruebas unitarias y asegurarte de que todo el sistema funcione
 Para Artículos:
 
 ```bash
-docker-compose run articulos_service python manage.py test
+docker-compose run articulos-service python manage.py test
 ```
 Para Pedidos:
 
 ```bash
-docker-compose run pedidos_service python manage.py test
+docker-compose run pedidos-service python manage.py test
 ```
 
 Esto ejecutará las pruebas definidas en los archivos tests.py de cada microservicio y mostrará los resultados en la consola.
