@@ -51,6 +51,12 @@ coverage.xml
 .pytest_cache/
 cover/
 
+# Temporal files
+*.tmp
+*.bak
+*.swp
+*~
+
 # Translations
 *.mo
 *.pot
@@ -158,3 +164,51 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+
+# IDE configuration files
+.vscode/
+*.swp
+*.swo
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Dependencies files
+/node_modules
+/bower_components
+
+# Build and distribution files
+/dist
+/build
+*.egg-info/
+
+# Database files
+*.sqlite3
+
+# Media and static files
+/media
+/static
+
+# Cache files
+.cache/
+
+# Log files
+*.log
+
+# Docker files
+docker-compose.override.yml
+
+# Local environment files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Test coverage files
+htmlcov/
+.coverage
+.coverage.*
+.cache
+coverage.xml
+*.cover
